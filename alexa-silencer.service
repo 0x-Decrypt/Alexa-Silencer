@@ -1,0 +1,17 @@
+[Unit]
+Description=Alexa Silencer Service
+After=network.target sound.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/alexa-silencer/alexa_silencer.py
+Restart=always
+RestartSec=5
+User=root
+WorkingDirectory=/opt/alexa-silencer
+TimeoutStopSec=5
+KillMode=mixed
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

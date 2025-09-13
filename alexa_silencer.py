@@ -18,6 +18,7 @@ import threading
 from pathlib import Path
 import pygame
 import tempfile
+import signal
 
 class AlexaSilencer:
     def __init__(self):
@@ -296,12 +297,25 @@ def hide_console_window():
             pass  # Fail silently
 
 
+# Global flag for graceful shutdown
+shutdown_flag = threading.Event()
+
+def signal_handler(signum, frame):
+    """Handle SIGTERM and SIGINT for graceful shutdown"""
+    print(f"Received signal {signum}, shutting down gracefully...")
+    shutdown_flag.set()
+    sys.exit(0)
+
 def main():
     """Main entry point"""
     # Hide console window immediately
     hide_console_window()
     
     silencer = AlexaSilencer()
+    
+    # Set up signal handlers
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
     
     # Check command line arguments
     if len(sys.argv) > 1 and sys.argv[1] == "--daemon":
@@ -310,6 +324,10 @@ def main():
     else:
         # First-time setup and run
         silencer.setup_and_run()
+    
+    # In your main loop, check for shutdown_flag
+    while not shutdown_flag.is_set():
+        pass  # Replace with actual work if needed
 
 
 if __name__ == "__main__":
